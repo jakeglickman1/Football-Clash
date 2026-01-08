@@ -104,6 +104,20 @@ body {
   transition: width 0.1s ease-out;
 }
 
+.season-panel {
+  margin-top: 0.8rem;
+  padding: 0.65rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0.8rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+  display: inline-flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .controls {
   margin-top: 1.1rem;
   padding: 1rem;
@@ -261,6 +275,17 @@ body {
 .player.defense {
   background: linear-gradient(135deg, #62a0ff, #1b3c91);
   border: 2px solid rgba(0, 0, 0, 0.4);
+}
+
+.player.lineman {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 0.5rem;
+}
+
+.player.defense.lineman {
+  background: linear-gradient(135deg, #4b7fda, #0e2757);
 }
 
 .player.targeted {

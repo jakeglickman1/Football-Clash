@@ -18,8 +18,11 @@
           <span id="ball-spot">Ball On: 20</span>
         </div>
         <div class="score defense">
-          CPU <span id="defense-score">0</span>
+          <span id="opponent-name">CPU</span> <span id="defense-score">0</span>
         </div>
+      </div>
+      <div class="season-panel" id="season-info">
+        Season 1 · Week 1 · vs CPU · Record 0-0
       </div>
       <div class="message" id="play-message">Drive 1 · Click + hold to throw</div>
       <div class="power-meter">
@@ -39,7 +42,7 @@
     <div class="stadium">
         <div class="field" id="field">
           <div class="endzone home">HOME</div>
-          <div class="endzone away">CPU</div>
+          <div class="endzone away" id="away-endzone">CPU</div>
           <div class="field-overlay"></div>
           <div class="marker line-of-scrimmage" id="los-marker">
             <span>LOS</span>

@@ -10,6 +10,9 @@ const powerFillEl = document.getElementById("power-fill");
 const losMarkerEl = document.getElementById("los-marker");
 const firstDownMarkerEl = document.getElementById("firstdown-marker");
 const routeOverlay = document.getElementById("routes-overlay");
+const opponentLabelEl = document.getElementById("opponent-name");
+const seasonInfoEl = document.getElementById("season-info");
+const awayEndzoneEl = document.getElementById("away-endzone");
 
 const FIELD_PADDING = 35;
 const RECEIVER_PRESETS = [
@@ -20,6 +23,36 @@ const RECEIVER_PRESETS = [
   { label: "RB", role: "RB", lane: 0.7, breakLane: 0.82, depth: 90, finalLane: 0.88, finalDepth: 50, speed: 138, color: "#9de3ff" },
 ];
 const DEFENDER_LANES = [0.22, 0.34, 0.52, 0.68, 0.82];
+const OFFENSIVE_LINE_PRESETS = [
+  { label: "LT", lane: 0.42 },
+  { label: "LG", lane: 0.5 },
+  { label: "RG", lane: 0.58 },
+  { label: "RT", lane: 0.66 },
+];
+const DEFENSIVE_LINE_PRESETS = [
+  { label: "DE1", lane: 0.4 },
+  { label: "DT1", lane: 0.5 },
+  { label: "DT2", lane: 0.6 },
+  { label: "DE2", lane: 0.7 },
+];
+const TEAM_POOL = [
+  { name: "Cyclones", difficulty: 1.0 },
+  { name: "Gladiators", difficulty: 1.05 },
+  { name: "Kodiaks", difficulty: 0.95 },
+  { name: "Volt", difficulty: 1.1 },
+  { name: "Phantoms", difficulty: 1.08 },
+  { name: "Outlaws", difficulty: 1.02 },
+  { name: "Lynx", difficulty: 0.92 },
+  { name: "Comets", difficulty: 1.12 },
+  { name: "Sharks", difficulty: 1.04 },
+  { name: "Guardians", difficulty: 0.98 },
+];
+const PLAYOFF_ROUNDS = ["Semifinal", "Championship"];
+const GAME_RULES = {
+  regularWeeks: 8,
+  drivesPerGame: 6,
+  targetScore: 35,
+};
 const ROUTE_PREVIEW_DURATION = 2000;
 
 let fieldSize = getFieldSize();
@@ -44,6 +77,8 @@ const state = {
     qb: null,
     receivers: [],
     defenders: [],
+    offensiveLine: [],
+    defensiveLine: [],
   },
   controlledPlayer: null,
   ball: {
@@ -51,6 +86,10 @@ const state = {
     y: 0,
     vx: 0,
     vy: 0,
+    z: 0,
+    vz: 0,
+    gravity: -900,
+    flightDuration: 0,
     inFlight: false,
     flightTime: 0,
     carrier: null,
@@ -65,6 +104,7 @@ const state = {
   },
   routePreviewVisible: false,
   routePreviewTimeout: null,
+  franchise: null,
 };
 
 function getFieldSize() {
@@ -98,6 +138,7 @@ function createPlayer(label, team, role) {
     x: 0,
     y: 0,
     speed: 200,
+    baseSpeed: 200,
     element: el,
     routePhase: 0,
     breakPoint: null,
@@ -109,9 +150,11 @@ function createPlayer(label, team, role) {
 function createPlayers() {
   state.players.qb = createPlayer("QB", "offense", "qb");
   state.players.qb.speed = 140;
+  state.players.qb.baseSpeed = 140;
   state.players.receivers = RECEIVER_PRESETS.map((preset) => {
     const receiver = createPlayer(preset.label, "offense", "receiver");
     receiver.speed = preset.speed;
+    receiver.baseSpeed = preset.speed;
     receiver.preset = preset;
     receiver.routeColor = preset.color;
     return receiver;
@@ -119,10 +162,138 @@ function createPlayers() {
   state.players.defenders = DEFENDER_LANES.map((lane, index) => {
     const defender = createPlayer(`DB${index + 1}`, "defense", "defender");
     defender.speed = 125 + index * 8;
+    defender.baseSpeed = defender.speed;
     defender.lane = lane;
     defender.assignmentIndex = index;
     return defender;
   });
+  state.players.offensiveLine = OFFENSIVE_LINE_PRESETS.map((preset) => {
+    const blocker = createPlayer(preset.label, "offense", "lineman");
+    blocker.speed = 115;
+    blocker.baseSpeed = blocker.speed;
+    blocker.anchor = { lane: preset.lane };
+    return blocker;
+  });
+  state.players.defensiveLine = DEFENSIVE_LINE_PRESETS.map((preset, index) => {
+    const rusher = createPlayer(preset.label, "defense", "lineman");
+    rusher.speed = 130 + index * 5;
+    rusher.baseSpeed = rusher.speed;
+    rusher.anchor = { lane: preset.lane };
+    return rusher;
+  });
+}
+
+function generateSchedule(weeks, seasonNumber = 1) {
+  const schedule = [];
+  const pool = [...TEAM_POOL];
+  for (let i = 0; i < weeks; i += 1) {
+    if (pool.length === 0) {
+      pool.push(...TEAM_POOL);
+    }
+    const index = Math.floor(Math.random() * pool.length);
+    const team = pool.splice(index, 1)[0];
+    const difficultyBoost = 0.05 * Math.min(seasonNumber - 1, 4) + 0.02 * i;
+    schedule.push({
+      name: team.name,
+      difficulty: Math.max(0.85, team.difficulty + difficultyBoost),
+    });
+  }
+  return schedule;
+}
+
+function generatePlayoffOpponents(seasonNumber = 1) {
+  return PLAYOFF_ROUNDS.map((round, index) => {
+    const team = TEAM_POOL[(index + seasonNumber) % TEAM_POOL.length];
+    const difficulty = team.difficulty + 0.1 * (index + 1) + 0.06 * seasonNumber;
+    return {
+      name: `${team.name} ${round === "Championship" ? "Elite" : ""}`.trim(),
+      difficulty: Math.min(1.4, difficulty),
+    };
+  });
+}
+
+function applyOpponentDifficulty(opponent) {
+  const multiplier = opponent ? Math.min(1.4, Math.max(0.8, opponent.difficulty)) : 1;
+  state.players.defenders.forEach((player) => {
+    player.speed = player.baseSpeed * multiplier;
+  });
+  state.players.defensiveLine.forEach((player) => {
+    player.speed = player.baseSpeed * multiplier;
+  });
+}
+
+function updateOpponentBranding() {
+  const opponentName = state.franchise?.opponent?.name || "CPU";
+  if (opponentLabelEl) {
+    opponentLabelEl.textContent = opponentName;
+  }
+  if (awayEndzoneEl) {
+    awayEndzoneEl.textContent = opponentName.toUpperCase();
+  }
+}
+
+function updateSeasonHud() {
+  if (!seasonInfoEl) {
+    return;
+  }
+  const franchise = state.franchise;
+  if (!franchise) {
+    seasonInfoEl.textContent = "Season setup...";
+    return;
+  }
+  let stageLabel = "";
+  if (franchise.stage === "regular") {
+    stageLabel = `Week ${Math.min(franchise.week, franchise.regularWeeks)}/${franchise.regularWeeks}`;
+  } else if (franchise.stage === "playoffs") {
+    stageLabel = `Playoffs · ${PLAYOFF_ROUNDS[franchise.playoffRound] || "Final"}`;
+  } else {
+    stageLabel = "Exhibition";
+  }
+  const opponentName = franchise.opponent ? `vs ${franchise.opponent.name}` : "";
+  const recordText = `Record ${franchise.record.wins}-${franchise.record.losses}`;
+  const trophyText = franchise.trophies > 0 ? ` · Rings ${franchise.trophies}` : "";
+  seasonInfoEl.textContent = `Season ${franchise.season} · ${stageLabel} · ${opponentName} · ${recordText}${trophyText}`;
+}
+
+function pickNextOpponent() {
+  const franchise = state.franchise;
+  if (!franchise) {
+    return;
+  }
+  let opponent = null;
+  if (franchise.stage === "regular") {
+    opponent = franchise.schedule[Math.min(franchise.week - 1, franchise.schedule.length - 1)];
+  } else if (franchise.stage === "playoffs") {
+    const fallbackIndex = Math.max(franchise.playoffOpponents.length - 1, 0);
+    opponent = franchise.playoffOpponents[franchise.playoffRound] || franchise.playoffOpponents[fallbackIndex];
+  }
+  if (!opponent) {
+    opponent = { name: "CPU", difficulty: 1 };
+  }
+  franchise.opponent = opponent;
+  applyOpponentDifficulty(opponent);
+  updateOpponentBranding();
+  updateSeasonHud();
+}
+
+function resetInGameState() {
+  state.playActive = false;
+  state.ball.inFlight = false;
+  state.ball.carrier = null;
+  hideRoutePreview();
+  state.offenseScore = 0;
+  state.defenseScore = 0;
+  state.drive = 1;
+  state.down = 1;
+  state.ballOn = 20;
+  state.lineOfScrimmage = 20;
+  state.nextFirstDown = 30;
+  updateHud();
+}
+
+function prepareMatch() {
+  resetInGameState();
+  startPlay();
 }
 
 function setupFormation() {
@@ -169,11 +340,22 @@ function setupFormation() {
       defender.y = fieldSize.height * defender.lane;
     }
   });
+  state.players.offensiveLine.forEach((blocker, index) => {
+    blocker.x = lineX - 25;
+    blocker.y = fieldSize.height * blocker.anchor.lane;
+    blocker.assignment = state.players.defensiveLine[index] || null;
+  });
+  state.players.defensiveLine.forEach((rusher) => {
+    rusher.x = lineX + 25;
+    rusher.y = fieldSize.height * rusher.anchor.lane;
+    rusher.assignment = null;
+  });
 
   state.ball.carrier = qb;
   state.ball.inFlight = false;
   state.ball.targetPoint = null;
   state.ball.flightTime = 0;
+  state.ball.flightDuration = 0;
   state.playClock = 0;
   state.controlledPlayer = qb;
   state.chargingThrow = false;
@@ -205,6 +387,7 @@ function updateHud() {
   downTextEl.textContent = `${formatDown(state.down)} & ${yardsToGo}`;
   ballSpotEl.textContent = `Ball On: ${Math.round(state.ballOn)}`;
   updateMarkers();
+  updateSeasonHud();
 }
 
 function updateMarkers() {
@@ -234,6 +417,9 @@ function renderRoutePreview() {
     return;
   }
   routeOverlay.innerHTML = "";
+  routeOverlay.setAttribute("viewBox", `0 0 ${fieldSize.width} ${fieldSize.height}`);
+  routeOverlay.setAttribute("width", "100%");
+  routeOverlay.setAttribute("height", "100%");
   state.players.receivers.forEach((receiver) => {
     if (!receiver.routePath) {
       return;
@@ -318,15 +504,35 @@ function startPlay() {
 }
 
 function resetGame() {
-  state.offenseScore = 0;
-  state.defenseScore = 0;
-  state.drive = 1;
-  state.down = 1;
-  state.ballOn = 20;
-  state.lineOfScrimmage = 20;
-  state.nextFirstDown = 30;
-  setMessage("New season! Click and hold to launch a throw.");
-  startPlay();
+  resetFranchiseProgress();
+}
+
+function beginSeason(seasonNumber, trophies) {
+  state.franchise = {
+    season: seasonNumber,
+    week: 1,
+    regularWeeks: GAME_RULES.regularWeeks,
+    stage: "regular",
+    record: { wins: 0, losses: 0 },
+    playoffRound: 0,
+    trophies,
+    schedule: generateSchedule(GAME_RULES.regularWeeks, seasonNumber),
+    playoffOpponents: [],
+    opponent: null,
+  };
+  pickNextOpponent();
+  prepareMatch();
+}
+
+function advanceSeason() {
+  const previous = state.franchise;
+  const trophies = previous ? previous.trophies : 0;
+  const nextSeason = previous ? previous.season + 1 : 1;
+  beginSeason(nextSeason, trophies);
+}
+
+function resetFranchiseProgress() {
+  beginSeason(1, 0);
 }
 
 function canStartThrow() {
@@ -378,11 +584,15 @@ function attemptPass(powerRatio = 0.5) {
   state.ball.carrier = null;
   const dx = passTarget.x - state.players.qb.x;
   const dy = passTarget.y - state.players.qb.y;
-  const distance = Math.hypot(dx, dy) || 1;
-  const speed =
+  const horizontalDistance = Math.hypot(dx, dy) || 1;
+  const baseHorizontalSpeed =
     THROW_MIN_SPEED + (THROW_MAX_SPEED - THROW_MIN_SPEED) * normalizedPower;
-  state.ball.vx = (dx / distance) * speed;
-  state.ball.vy = (dy / distance) * speed;
+  const duration = clamp(horizontalDistance / baseHorizontalSpeed, 0.85, 1.45);
+  state.ball.flightDuration = duration;
+  state.ball.z = 10;
+  state.ball.vx = dx / duration;
+  state.ball.vy = dy / duration;
+  state.ball.vz = -(state.ball.z + 0.5 * state.ball.gravity * duration * duration) / duration;
   setMessage(`Ball in the air · Power ${Math.round(normalizedPower * 100)}%`);
 }
 
@@ -440,6 +650,38 @@ function updateReceivers(dt) {
   });
 }
 
+function updateTrenchBattles(dt) {
+  const qb = state.players.qb;
+  state.players.offensiveLine.forEach((blocker) => {
+    const targetX = qb.x - 20;
+    const targetY = fieldSize.height * blocker.anchor.lane;
+    moveToward(blocker, targetX, targetY, 85, dt);
+  });
+  state.players.defensiveLine.forEach((rusher) => {
+    const targetX = qb.x - 4;
+    const targetY = fieldSize.height * rusher.anchor.lane;
+    moveToward(rusher, targetX, targetY, 120, dt);
+  });
+  state.players.offensiveLine.forEach((blocker, index) => {
+    const rusher = state.players.defensiveLine[index];
+    if (!rusher) {
+      return;
+    }
+    const dx = rusher.x - blocker.x;
+    const dy = rusher.y - blocker.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance < 26) {
+      const pushX = dx / (distance || 1);
+      const pushY = dy / (distance || 1);
+      const pushForce = 110 * dt;
+      blocker.x -= pushX * pushForce * 0.6;
+      blocker.y -= pushY * pushForce * 0.6;
+      rusher.x += pushX * pushForce * 0.8;
+      rusher.y += pushY * pushForce * 0.8;
+    }
+  });
+}
+
 function updateDefenders(dt) {
   state.players.defenders.forEach((defender) => {
     let targetX = defender.x;
@@ -447,9 +689,6 @@ function updateDefenders(dt) {
     if (state.ball.carrier) {
       targetX = state.ball.carrier.x;
       targetY = state.ball.carrier.y;
-    } else if (state.ball.inFlight) {
-      targetX = state.ball.x;
-      targetY = state.ball.y;
     } else if (defender.assignment) {
       const assigned = defender.assignment;
       const leadPoint = assigned.routePhase === 0 ? assigned.breakPoint : assigned.goPoint;
@@ -466,16 +705,26 @@ function updateBall(dt) {
   if (state.ball.carrier) {
     state.ball.x = state.ball.carrier.x;
     state.ball.y = state.ball.carrier.y - 6;
+    state.ball.z = 0;
+    state.ball.vz = 0;
     return;
   }
   if (!state.ball.inFlight) {
     state.ball.x = state.players.qb.x;
     state.ball.y = state.players.qb.y - 6;
+    state.ball.z = 0;
+    state.ball.vz = 0;
     return;
   }
   state.ball.flightTime += dt;
   state.ball.x += state.ball.vx * dt;
   state.ball.y += state.ball.vy * dt;
+  state.ball.z += state.ball.vz * dt;
+  state.ball.vz += state.ball.gravity * dt;
+  if (state.ball.z < 0) {
+    state.ball.z = 0;
+    state.ball.vz = 0;
+  }
   attemptOffensiveCatch();
   if (!state.ball.inFlight) {
     return;
@@ -490,6 +739,10 @@ function updateBall(dt) {
       return;
     }
   }
+  if (state.ball.z === 0 && state.ball.flightTime > state.ball.flightDuration) {
+    endPlay("incomplete", state.lineOfScrimmage);
+    return;
+  }
   if (
     state.ball.flightTime > 1.8 ||
     state.ball.x <= FIELD_PADDING ||
@@ -503,18 +756,35 @@ function attemptOffensiveCatch() {
   if (!state.ball.inFlight) {
     return;
   }
-  for (const receiver of state.players.receivers) {
-    const distance = Math.hypot(receiver.x - state.ball.x, receiver.y - state.ball.y);
-    if (distance < 16) {
+  const effectiveRadius = state.ball.z > 10 ? 45 : 18;
+  const planeDistance = (player) => Math.hypot(player.x - state.ball.x, player.y - state.ball.y);
+
+  const eligible = state.players.receivers.slice().sort((a, b) => {
+    const aDist = planeDistance(a);
+    const bDist = planeDistance(b);
+    const aLead = Math.hypot(
+      state.ball.targetPoint ? state.ball.targetPoint.x - a.x : 0,
+      state.ball.targetPoint ? state.ball.targetPoint.y - a.y : 0
+    );
+    const bLead = Math.hypot(
+      state.ball.targetPoint ? state.ball.targetPoint.x - b.x : 0,
+      state.ball.targetPoint ? state.ball.targetPoint.y - b.y : 0
+    );
+    return aLead - bLead || aDist - bDist;
+  });
+
+  for (const receiver of eligible) {
+    if (planeDistance(receiver) < effectiveRadius) {
       completePass(receiver);
       return;
     }
   }
+
   const qb = state.players.qb;
   if (
     !state.ball.carrier &&
-    state.ball.flightTime > 0.18 &&
-    Math.hypot(qb.x - state.ball.x, qb.y - state.ball.y) < 16
+    state.ball.flightTime > 0.25 &&
+    planeDistance(qb) < effectiveRadius * 0.7
   ) {
     state.ball.carrier = qb;
     state.ball.inFlight = false;
@@ -528,6 +798,8 @@ function completePass(receiver) {
   state.ball.carrier = receiver;
   state.ball.inFlight = false;
   state.ball.targetPoint = null;
+  state.ball.z = 0;
+  state.ball.vz = 0;
   state.controlledPlayer = receiver;
   setMessage(`${receiver.label} hauls it in!`);
 }
@@ -537,7 +809,11 @@ function handleCollisions() {
     return;
   }
   const carrier = state.ball.carrier;
-  for (const defender of state.players.defenders) {
+  const tacklers = [
+    ...state.players.defenders,
+    ...state.players.defensiveLine,
+  ];
+  for (const defender of tacklers) {
     const distance = Math.hypot(defender.x - carrier.x, defender.y - carrier.y);
     if (distance < 20) {
       const yardLine = xToYards(carrier.x);
@@ -551,7 +827,14 @@ function handleInterceptions() {
   if (!state.ball.inFlight) {
     return;
   }
-  for (const defender of state.players.defenders) {
+  if (state.ball.z > 8) {
+    return;
+  }
+  const defenders = [
+    ...state.players.defenders,
+    ...state.players.defensiveLine,
+  ];
+  for (const defender of defenders) {
     const distance = Math.hypot(defender.x - state.ball.x, defender.y - state.ball.y);
     if (distance < 18) {
       state.ball.inFlight = false;
@@ -593,6 +876,9 @@ function endPlay(outcome, yardLine) {
     state.down = 1;
     setMessage("Touchdown! Lining up for the next drive.");
     updateHud();
+    if (maybeFinishGame()) {
+      return;
+    }
     setTimeout(startPlay, 1400);
     return;
   }
@@ -606,6 +892,9 @@ function endPlay(outcome, yardLine) {
     state.down = 1;
     setMessage("Turnover! Defense cashes in.");
     updateHud();
+    if (maybeFinishGame()) {
+      return;
+    }
     setTimeout(startPlay, 1400);
     return;
   }
@@ -650,7 +939,96 @@ function turnoverOnDowns() {
   state.down = 1;
   setMessage("Turnover on downs. Resetting at the 20.");
   updateHud();
+  if (maybeFinishGame()) {
+    return;
+  }
   setTimeout(startPlay, 1200);
+}
+
+function maybeFinishGame() {
+  const franchise = state.franchise;
+  if (!franchise) {
+    return false;
+  }
+  const drivesLimitReached = state.drive > GAME_RULES.drivesPerGame;
+  const mercyRule =
+    state.offenseScore >= GAME_RULES.targetScore ||
+    state.defenseScore >= GAME_RULES.targetScore;
+  if (!drivesLimitReached && !mercyRule) {
+    return false;
+  }
+  const playerWon = state.offenseScore >= state.defenseScore;
+  finalizeMatch(playerWon);
+  return true;
+}
+
+function finalizeMatch(playerWon) {
+  state.playActive = false;
+  state.ball.inFlight = false;
+  hideRoutePreview();
+  const franchise = state.franchise;
+  const opponentName = franchise?.opponent?.name || "CPU";
+  let summary = playerWon
+    ? `You beat the ${opponentName}!`
+    : `Fell to the ${opponentName}.`;
+
+  if (!franchise) {
+    setMessage(summary);
+    setTimeout(() => prepareMatch(), 2000);
+    return;
+  }
+
+  if (franchise.stage === "regular") {
+    if (playerWon) {
+      franchise.record.wins += 1;
+    } else {
+      franchise.record.losses += 1;
+    }
+    franchise.week += 1;
+    const seasonComplete = franchise.week > franchise.regularWeeks;
+    if (seasonComplete) {
+      const winsNeeded = Math.ceil(franchise.regularWeeks / 2);
+      if (franchise.record.wins >= winsNeeded) {
+        franchise.stage = "playoffs";
+        franchise.playoffRound = 0;
+        franchise.playoffOpponents = generatePlayoffOpponents(franchise.season);
+        summary += " Playoffs bound!";
+        pickNextOpponent();
+        setMessage(summary);
+        setTimeout(() => prepareMatch(), 2200);
+        return;
+      }
+      summary += " Season over. Restarting for a new year.";
+      setMessage(summary);
+      setTimeout(() => advanceSeason(), 2400);
+      return;
+    }
+    pickNextOpponent();
+    setMessage(summary);
+    setTimeout(() => prepareMatch(), 1800);
+    return;
+  }
+
+  if (franchise.stage === "playoffs") {
+    if (playerWon) {
+      franchise.playoffRound += 1;
+      if (franchise.playoffRound >= PLAYOFF_ROUNDS.length) {
+        franchise.trophies += 1;
+        summary += " Champions!";
+        setMessage(summary);
+        setTimeout(() => advanceSeason(), 2500);
+        return;
+      }
+      summary += ` Advancing to the ${PLAYOFF_ROUNDS[franchise.playoffRound]}.`;
+      pickNextOpponent();
+      setMessage(summary);
+      setTimeout(() => prepareMatch(), 2000);
+      return;
+    }
+    summary += " Playoff run ends here.";
+    setMessage(summary);
+    setTimeout(() => advanceSeason(), 2400);
+  }
 }
 
 function renderPlayers() {
@@ -658,13 +1036,15 @@ function renderPlayers() {
     state.players.qb,
     ...state.players.receivers,
     ...state.players.defenders,
+    ...state.players.offensiveLine,
+    ...state.players.defensiveLine,
   ];
   allPlayers.forEach((player) => {
     player.element.style.left = `${player.x}px`;
     player.element.style.top = `${player.y}px`;
   });
   ballEl.style.left = `${state.ball.x}px`;
-  ballEl.style.top = `${state.ball.y}px`;
+  ballEl.style.top = `${state.ball.y - state.ball.z}px`;
 }
 
 function handleKeyDown(event) {
@@ -716,6 +1096,8 @@ function resizeField() {
     state.players.qb,
     ...state.players.receivers,
     ...state.players.defenders,
+    ...state.players.offensiveLine,
+    ...state.players.defensiveLine,
   ];
   everyone.forEach(scalePlayer);
   state.players.receivers.forEach((receiver) => {
@@ -755,6 +1137,7 @@ function update(dt) {
     state.playClock += dt;
     handleUserMovement(dt);
     updateReceivers(dt);
+    updateTrenchBattles(dt);
     updateDefenders(dt);
     updateBall(dt);
     handleInterceptions();
@@ -776,8 +1159,7 @@ function loop(timestamp) {
 
 function init() {
   createPlayers();
-  setupFormation();
-  updateHud();
+  resetFranchiseProgress();
   document.addEventListener("keydown", handleKeyDown);
   document.addEventListener("keyup", handleKeyUp);
   field.addEventListener("pointermove", handleFieldPointerMove);
@@ -788,7 +1170,6 @@ function init() {
     resizeField();
     updateHud();
   });
-  startPlay();
   requestAnimationFrame(loop);
 }
 
