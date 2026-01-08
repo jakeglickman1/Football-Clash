@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retrobowl Sandlot · Documentation</title>
+    <style>
+      :root {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        color: #0d1b2a;
+      }
+      body {
+        margin: 0;
+        padding: 2rem clamp(1rem, 4vw, 3rem) 3rem;
+        line-height: 1.6;
+        background: #f7fbff;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 25px 60px rgba(13, 27, 42, 0.12);
+        padding: clamp(1.5rem, 4vw, 2.8rem);
+      }
+      h1,
+      h2,
+      h3 {
+        color: #0b3954;
+        margin-top: 1.5rem;
+      }
+      h1 {
+        margin-top: 0;
+        letter-spacing: 0.08em;
+      }
+      p {
+        margin: 0.85rem 0;
+      }
+      ul {
+        padding-left: 1.25rem;
+      }
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        background: rgba(11, 57, 84, 0.08);
+        padding: 0 0.25rem;
+        border-radius: 4px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.8rem 0 1.4rem;
+        background: #f7fafc;
+      }
+      th,
+      td {
+        padding: 0.65rem 0.8rem;
+        border: 1px solid rgba(13, 27, 42, 0.08);
+        text-align: left;
+      }
+      pre {
+        background: #0b3954;
+        color: #f8fbff;
+        padding: 1rem;
+        border-radius: 0.8rem;
+        overflow-x: auto;
+      }
+      footer {
+        margin-top: 2rem;
+        text-align: center;
+        color: #4a5f78;
+        font-size: 0.9rem;
+      }
+      .doc-logo {
+        display: block;
+        width: min(360px, 80%);
+        margin: 1rem auto 1.5rem;
+        filter: drop-shadow(0 12px 20px rgba(8, 27, 31, 0.3));
+      }
+      .doc-figure {
+        margin: 1.8rem 0;
+        text-align: center;
+      }
+      .doc-figure img {
+        width: 100%;
+        border-radius: 1rem;
+        box-shadow: 0 20px 45px rgba(8, 27, 31, 0.35);
+      }
+      .doc-figure figcaption {
+        margin-top: 0.6rem;
+        font-size: 0.9rem;
+        color: #526178;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Retrobowl Sandlot</h1>
+      <img src="assets/logo.svg" alt="Retrobowl Sandlot Logo" class="doc-logo" />
+      <p>
+        Retrobowl Sandlot is a fast, arcade-football prototype that blends classic sandlot vibes with a light franchise loop.
+        You command a single offensive possession, sling mouse-aimed passes with an arcing power meter, and grind through a
+        multi-week schedule that culminates in a two-round playoff chase. The experience is intentionally compact yet
+        polished, focusing on crisp controls, readable UI, and dynamic receiver routes that feel alive from snap to whistle.
+      </p>
+      <figure class="doc-figure">
+        <img src="assets/gameplay-preview.svg" alt="Gameplay preview showing player routes and assignments" />
+        <figcaption>Gameplay snapshot highlighting the horizontal field layout, route preview overlay, and trenches.</figcaption>
+      </figure>
+
+      <h2>Core Features</h2>
+      <ul>
+        <li><strong>Mouse-aimed Throwing</strong> – Hold the mouse button to build power, release to zip a pass anywhere on the field with vertical arc so defenders cannot block every attempt.</li>
+        <li><strong>Receiver Route Visuals</strong> – SVG routes fade in before each snap, previewing WR, TE, and RB assignments for clear reads.</li>
+        <li><strong>Animated Trenches</strong> – Offensive and defensive linemen battle to form a living pocket that affects pass timing.</li>
+        <li><strong>Assignment-Based Defense</strong> – CPU defenders trail their assigned receiver rather than chasing the football blindly.</li>
+        <li><strong>First-Down + LOS Markers</strong> – Persistent HUD elements show the chains and line of scrimmage for quick situational awareness.</li>
+        <li><strong>Franchise Season Loop</strong> – An eight-week schedule escalates difficulty before the semifinal and championship rounds, with trophy rings for every title.</li>
+      </ul>
+
+      <h2>Controls</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Input</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Move QB / ball carrier</td>
+            <td>Arrow Keys</td>
+          </tr>
+          <tr>
+            <td>Sprint</td>
+            <td><code>Shift</code></td>
+          </tr>
+          <tr>
+            <td>Throw</td>
+            <td>Click + hold to charge, release to fire toward the cursor</td>
+          </tr>
+          <tr>
+            <td>Reset Season</td>
+            <td><code>R</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p><em>Tip:</em> Control automatically transfers to the receiver after a catch so you can keep running without extra input.</p>
+
+      <h2>Season &amp; Progression</h2>
+      <ul>
+        <li><strong>Schedule Generation</strong> – Opponents are pulled from a curated pool with difficulty modifiers for the current season and week.</li>
+        <li><strong>Playoffs</strong> – Finish with a winning record to unlock the Semifinal and Championship; hoist the trophy to add a ring and advance to the next season.</li>
+        <li><strong>Dynamic Branding</strong> – HUD labels and the away endzone text update automatically to match every opponent.</li>
+      </ul>
+
+      <h2>Project Structure</h2>
+      <pre><code>index.html   # HUD markup, field layout, static assets
+style.css    # Stadium aesthetic, player markers, responsive layout
+script.js    # Game state, input, AI, season logic, rendering loop
+README.md    # Project documentation
+README.html  # Standalone documentation page
+</code></pre>
+
+      <h2>Local Development</h2>
+      <ol>
+        <li>Clone or download the repository.</li>
+        <li>Open <code>index.html</code> in any modern browser.</li>
+        <li>Play immediately&mdash;no build or tooling steps are required.</li>
+      </ol>
+      <p>If you prefer live reload, serve the directory with a lightweight static server such as <code>python -m http.server</code> or <code>npx serve</code>.</p>
+
+      <h2>Deployment Notes</h2>
+      <ul>
+        <li>The project is GitHub Pages-friendly: publish the root or <code>main</code> branch and the prototype will run as-is.</li>
+        <li>This HTML file mirrors the README so visitors can read the documentation directly from Pages.</li>
+        <li>To publish <code>README.html</code>, commit it to the branch used by Pages (commonly <code>main</code>) and enable GitHub Pages under Settings → Pages.</li>
+      </ul>
+
+      <h2>Roadmap Ideas</h2>
+      <ol>
+        <li>Introduce defensive play diversity (zones, blitzes) for richer matchups.</li>
+        <li>Add offensive play selection with multiple formations and motion.</li>
+        <li>Persist player and team stats (yards, touchdowns, completion rate) between sessions.</li>
+        <li>Layer in mobile-friendly touch gestures.</li>
+      </ol>
+
+      <footer>
+        Have fun slinging passes, racking up rings, and keeping the sandlot dynasty alive!
+      </footer>
+    </main>
+  </body>
+</html>
