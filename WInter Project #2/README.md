@@ -58,6 +58,12 @@ There are no tooling scripts in this prototype. If you want live reload, serve t
 - For documentation, `README.html` mirrors this file in a browser-friendly format so visitors can read the overview directly on Pages.
 - To publish the documentation page specifically, push `README.html` to the branch that Pages is configured to serve (for example, `main`) and enable Pages under **Settings → Pages** so GitHub hosts the rendered HTML.
 
+## GitHub Pages Deployment for `README.html`
+
+- A workflow (`.github/workflows/deploy-readme.yml`) now copies `README.html` plus the `assets/` directory into a small `public/` artifact and deploys it to GitHub Pages whenever `main` is updated (you can also trigger it manually via “Run workflow”).
+- After the workflow runs successfully for the first time, open **Settings → Pages** and set the **Source** to “GitHub Actions.” GitHub will display the live link (something like `https://<user>.github.io/<repo>/`) in both the workflow summary and that settings page.
+- The deployed page renders exactly like `README.html` locally, so you can share the Pages URL for anyone to load the documentation in their browser.
+
 ## Roadmap Ideas
 
 1. Add defensive play variety (zones, blitz packages) to mix up reads.
