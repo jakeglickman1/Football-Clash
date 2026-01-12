@@ -1,66 +1,76 @@
-# Aurora Arcade Casino
+# Retrobowl Sandlot
 
-Aurora Arcade is a single-page casino experience that runs entirely in the browser. It ships with cinematic UI, a shared credit bankroll, and a suite of mini games that can be played without any backend service.
+![Retrobowl Sandlot Logo](assets/logo.svg)
 
-## Game Lineup
+Retrobowl Sandlot is a fast, arcade-football prototype that blends classic sandlot vibes with a light franchise loop. You command a single offensive possession, sling mouse-aimed passes with an arcing power meter, and grind through a multi-week schedule that culminates in a two-round playoff chase. The experience is intentionally compact yet polished, focusing on crisp controls, readable UI, and dynamic receiver routes that feel alive from snap to whistle.
 
-- Slots — streak-based triple-reel slots with escalating multipliers.
-- High Card Duel — flip a single card against the dealer for quick wins.
-- Roulette — bet on color (red/black) or the glowing neon zero; wheel animation includes pointer physics.
-- Craps — full come-out and point phases with animated dice and point tracking.
-- Baccarat — player / banker / tie wagers with natural checks and third-card logic.
-- Blackjack — supports hit/stand play, soft totals, dealer reveal, and settlement rules.
-- Video Poker — draw/hold cycle with rank evaluation for both the player and AI opponents.
-- Plinko (Arcade Lounge) — drop a puck through configurable lanes to chase multiplier slots.
+## Core Features
 
-All games feed credits into a shared bankroll displayed in the site header. Results stream into the history log so the play session can be reviewed.
+- **Mouse-aimed Throwing** – Hold the mouse button to build power, release to zip a pass to any point on the field. The ball travels with both horizontal and vertical velocity so defenders can’t auto-block every throw.
+- **Receiver Route Visuals** – The moment the play loads, SVG routes fade in to preview every WR, TE, and RB assignment so reads are easy before the snap.
+- **Animated Trenches** – Offensive and defensive linemen battle in front of the QB, creating a living pocket that influences the timing of each play.
+- **Assignment-Based Defense** – CPU defenders key on their designated receiver instead of blindly chasing the ball, making man coverage more authentic.
+- **First-Down + LOS Markers** – Persistent HUD elements render the line of scrimmage and the current sticks so you always know the down-and-distance situation.
+- **Franchise Season Loop** – Play through eight regular-season weeks that scale in difficulty, then face bespoke playoff matchups; trophy rings accumulate with every title run.
+
+![Gameplay preview showing the horizontal field, player icons, and color-coded routes](assets/gameplay-preview.svg)
+
+## Controls
+
+| Action | Input |
+| --- | --- |
+| Move QB / ball carrier | Arrow Keys |
+| Sprint | `Shift` |
+| Throw | Click + hold to charge, release to fire toward the cursor |
+| Reset season | `R` |
+
+> Note: When a receiver secures the catch, you automatically take control of that player, allowing you to keep running upfield without extra input.
+
+## Season & Progression
+
+- **Schedule Generation** – Each season pulls opponents from a curated pool, factoring the current year and week into a difficulty multiplier for better pacing.
+- **Playoffs** – Finish the regular season with a winning record to unlock Semifinal and Championship showdowns; win it all to earn a trophy and progress to the next season.
+- **Dynamic Branding** – HUD elements (opponent label, away end zone) update per game so the presentation reflects the current matchup.
 
 ## Project Structure
 
 ```
-NEW/
-  index.html          # Landing page that links to casino and arcade lounges
-  casino.html         # Main casino floor experience (slots, duel, roulette, craps, baccarat, blackjack, poker)
-  online-casino.html  # Arcade lounge with plinko feature showcase
-  app.js              # Core game logic that powers the casino floor pages
-  online.js           # Logic dedicated to the arcade lounge interactions
-  styles.css          # Global styling for every view
+index.html   # HUD markup, field layout, static assets
+style.css    # Stadium aesthetic, player markers, responsive layout
+script.js    # Game state, input, AI, season logic, rendering loop
+README.md    # Project documentation
+README.html  # Standalone documentation page
 ```
 
-> Legacy prototype files (`app.js`, `index.html`, `styles.css` at the repository root) are kept for reference and can be ignored when running the Aurora Arcade experience.
+## Local Development
 
-## Getting Started
+1. Clone or download the project.
+2. Open `index.html` in any modern browser (Chrome, Edge, Safari).
+3. Play immediately—no build step is required because the prototype is plain HTML/CSS/JS.
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/jakeglickman1/CASINO.git
-   cd CASINO
-   ```
-2. Serve the files:
-   - Option A: Open `NEW/index.html` directly in your browser (double-click or drag into a tab).
-   - Option B: Run a lightweight HTTP server:
-     ```bash
-     # Python 3
-     python3 -m http.server 3000
-     # then visit http://localhost:3000/NEW/index.html
-     ```
-3. Explore the casino floor via `NEW/casino.html` or check out the arcade lounge via `NEW/online-casino.html`.
+### Helpful Scripts
 
-The site uses no build steps; edit the HTML/CSS/JS and refresh the browser to see changes.
+There are no tooling scripts in this prototype. If you want live reload, serve the root directory with any static server (`python -m http.server`, `npx serve`, etc.).
 
-## Development Notes
+## Deployment Notes
 
-- `app.js` includes modular helpers (deck builders, shuffling, credit adjustments) that are shared between games.
-- Each game uses `setStatus` helpers to display contextual status messages and color-coded feedback.
-- Bankroll updates trigger animations (`flashCredits`) so gains/losses are easy to track.
-- History entries are appended through `logEvent`, giving players a persistent session recap.
+- The project is GitHub Pages-friendly. Deploy the root or the `main` branch via Pages, and the game runs as-is.
+- For documentation, `README.html` mirrors this file in a browser-friendly format so visitors can read the overview directly on Pages.
+- To publish the documentation page specifically, push `README.html` to the branch that Pages is configured to serve (for example, `main`) and enable Pages under **Settings → Pages** so GitHub hosts the rendered HTML.
 
-## Contributing
+## GitHub Pages Deployment for `README.html`
 
-Pull requests and issue suggestions are welcome. If you add a new game, follow the existing pattern by:
+- A workflow (`.github/workflows/deploy-readme.yml`) now copies `README.html` plus the `assets/` directory into a small `public/` artifact and deploys it to GitHub Pages whenever `main` is updated (you can also trigger it manually via “Run workflow”).
+- After the workflow runs successfully for the first time, open **Settings → Pages** and set the **Source** to “GitHub Actions.” GitHub will display the live link (something like `https://<user>.github.io/<repo>/`) in both the workflow summary and that settings page.
+- The deployed page renders exactly like `README.html` locally, so you can share the Pages URL for anyone to load the documentation in their browser.
 
-1. Creating the markup in the relevant HTML file.
-2. Extending the shared state in `app.js` or `online.js`.
-3. Wiring up controls that call `applyStake`, update history, and report status.
+## Roadmap Ideas
 
-Happy dealing!
+1. Add defensive play variety (zones, blitz packages) to mix up reads.
+2. Layer in offensive play-calling with multiple formations and motion.
+3. Persist season stats (QB yards, TDs, completion rate) between sessions.
+4. Add touch controls for mobile browsers.
+
+---
+
+Have fun slinging passes, racking up rings, and keeping the sandlot dynasty alive!

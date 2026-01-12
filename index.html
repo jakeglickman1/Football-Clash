@@ -1,76 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aurora Arcade</title>
-  <meta http-equiv="refresh" content="0; url=NEW/index.html">
-  <link rel="canonical" href="NEW/index.html">
-  <style>
-    :root {
-      color-scheme: dark light;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 2rem;
-      background: radial-gradient(circle at 20% 20%, #2a2a72, #000428);
-      color: #f8f9ff;
-    }
-    main {
-      max-width: 28rem;
-      text-align: center;
-      border: 1px solid rgba(248, 249, 255, 0.2);
-      border-radius: 1.25rem;
-      padding: 2.5rem 2rem;
-      background: rgba(12, 16, 48, 0.85);
-      box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.45), inset 0 0 0.5rem rgba(138, 74, 200, 0.2);
-      backdrop-filter: blur(18px);
-    }
-    h1 {
-      margin: 0 0 1rem;
-      font-size: 1.875rem;
-      letter-spacing: 0.04em;
-    }
-    p {
-      margin: 0 0 1.75rem;
-      line-height: 1.55;
-    }
-    a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.85rem 1.65rem;
-      border-radius: 999px;
-      border: 1px solid rgba(248, 249, 255, 0.35);
-      color: inherit;
-      text-decoration: none;
-      font-weight: 600;
-      letter-spacing: 0.015em;
-      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
-      background: rgba(120, 85, 255, 0.2);
-    }
-    a:hover,
-    a:focus-visible {
-      transform: translateY(-2px);
-      background: rgba(120, 85, 255, 0.4);
-      border-color: rgba(248, 249, 255, 0.55);
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Routing to Aurora Arcade</h1>
-    <p>If you are not redirected automatically, choose the link below to launch the casino experience.</p>
-    <a href="NEW/index.html">Enter the Casino</a>
-  </main>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      window.location.replace("NEW/index.html");
-    });
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retrobowl Sandlot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="hud">
+      <h1>Retrobowl Sandlot</h1>
+      <div class="scoreboard">
+        <div class="score offense">
+          You <span id="offense-score">0</span>
+        </div>
+        <div class="drive-status">
+          <span id="down-text">1st &amp; 10</span>
+          <span id="ball-spot">Ball On: 20</span>
+        </div>
+        <div class="score defense">
+          <span id="opponent-name">CPU</span> <span id="defense-score">0</span>
+        </div>
+      </div>
+      <div class="season-panel" id="season-info">
+        Season 1 · Week 1 · vs CPU · Record 0-0
+      </div>
+      <div class="message" id="play-message">Drive 1 · Click + hold to throw</div>
+      <div class="power-meter">
+        <div class="meter-label">Throw Power</div>
+        <div class="meter-track">
+          <div class="meter-fill" id="power-fill"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <p><strong>Controls</strong></p>
+        <p>Move: Arrow Keys · Sprint: Shift</p>
+        <p>Throw: Click + hold to charge, release to fire</p>
+        <p>Reset Season: R</p>
+      </div>
+    </div>
+
+    <div class="stadium">
+        <div class="field" id="field">
+          <div class="endzone home">HOME</div>
+          <div class="endzone away" id="away-endzone">CPU</div>
+          <div class="field-overlay"></div>
+          <div class="marker line-of-scrimmage" id="los-marker">
+            <span>LOS</span>
+          </div>
+          <div class="marker first-down" id="firstdown-marker">
+            <span>1st</span>
+          </div>
+          <svg class="routes-svg" id="routes-overlay"></svg>
+          <div class="play-layer" id="play-layer"></div>
+          <div class="ball" id="ball"></div>
+        </div>
+      </div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
