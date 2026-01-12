@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource path="res://Scripts/game_manager.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/card_manager.gd" type="Script" id=2]
+[ext_resource path="res://Scripts/dice_manager.gd" type="Script" id=3]
+[ext_resource path="res://Scripts/bluff_system.gd" type="Script" id=4]
+[ext_resource path="res://Scripts/russian_roulette.gd" type="Script" id=5]
+
+[node name="GameManager" type="Node"]
+script = ExtResource( 1 )
+card_manager_path = NodePath("CardManager")
+dice_manager_path = NodePath("DiceManager")
+bluff_system_path = NodePath("BluffSystem")
+russian_roulette_path = NodePath("RussianRoulette")
+
+[node name="CardManager" type="Node" parent="."]
+script = ExtResource( 2 )
+
+[node name="DiceManager" type="Node" parent="."]
+script = ExtResource( 3 )
+
+[node name="BluffSystem" type="Node" parent="."]
+script = ExtResource( 4 )
+card_manager_path = NodePath("../CardManager")
+dice_manager_path = NodePath("../DiceManager")
+
+[node name="RussianRoulette" type="Node" parent="."]
+script = ExtResource( 5 )

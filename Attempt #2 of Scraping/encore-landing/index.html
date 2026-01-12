@@ -1,0 +1,352 @@
+<!--
+Page structure outline:
+1. Header with sticky navigation and mobile toggle
+2. Hero section with headline, copy, CTA, and product mockup
+3. Trusted marketplaces/logo strip
+4. Feature highlights explaining Encore's value
+5. Workflow/How it works steps
+6. Benefits strip for sellers
+7. Testimonials for social proof
+8. FAQ accordion section
+9. Closing call-to-action band
+10. Footer with key navigation links and contact details
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Encore | AI Sourcing for Resellers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav__container">
+        <a class="nav__logo" href="#hero" aria-label="Encore home">
+          <span>Encore</span>
+        </a>
+        <input type="checkbox" id="nav-toggle" class="nav__checkbox" />
+        <label class="nav__toggle" for="nav-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </label>
+        <nav class="nav">
+          <ul class="nav__links">
+            <li><a href="#features">Platform</a></li>
+            <li><a href="#workflow">How it works</a></li>
+            <li><a href="#testimonials">Stories</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+          <div class="nav__actions">
+            <a class="btn btn--ghost" href="#faq">Join waitlist</a>
+            <a class="btn" href="#cta">Get started</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="hero">
+        <div class="container hero__grid">
+          <div class="hero__content">
+            <p class="eyebrow">AI DEAL DISCOVERY</p>
+            <h1>Find the resale gems before anyone else does.</h1>
+            <p class="hero__text">
+              Encore scans marketplaces in real time, ranks the best flips, and
+              notifies you before listings are gone. Source faster, profit more,
+              and build a smarter resale business.
+            </p>
+            <div class="hero__actions">
+              <a class="btn" href="#cta">Start sourcing</a>
+              <button class="btn btn--ghost" type="button">Watch demo</button>
+            </div>
+            <div class="hero__stats">
+              <div>
+                <strong>2.5M+</strong>
+                <span>Listings analyzed every week</span>
+              </div>
+              <div>
+                <strong>42%</strong>
+                <span>Average margin lift for users</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero__media" aria-hidden="true">
+            <div class="hero__mockup">
+              <div class="mockup__header">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="mockup__body">
+                <div class="mockup__card">
+                  <p class="mockup__label">Instant alerts</p>
+                  <h3>Vintage Nike Dunk – $75</h3>
+                  <p>Projected resale: $185 · Size 9</p>
+                </div>
+                <div class="mockup__card">
+                  <p class="mockup__label">Spotlight</p>
+                  <h3>Rare Patagonia Fleece</h3>
+                  <p>13 watchers · Verified seller</p>
+                </div>
+                <ul class="mockup__list">
+                  <li>
+                    <span>Depop</span>
+                    <strong>$64</strong>
+                  </li>
+                  <li>
+                    <span>Vinted</span>
+                    <strong>$48</strong>
+                  </li>
+                  <li>
+                    <span>Poshmark</span>
+                    <strong>$71</strong>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="logos" aria-label="Trusted marketplaces">
+        <div class="container">
+          <p>Partnered resale networks and thrifter communities</p>
+          <div class="logos__grid">
+            <span>Vinted Collective</span>
+            <span>Depop Guild</span>
+            <span>Poshmark Pros</span>
+            <span>Mercari Labs</span>
+            <span>Whatnot Studio</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="features" id="features">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">Platform overview</p>
+            <h2>Everything you need to run a smarter resale operation.</h2>
+            <p>
+              Encore brings listing intelligence, price guidance, and buyer-ready
+              assets into a single workspace so you can scale with fewer tabs
+              and zero guesswork.
+            </p>
+          </div>
+          <div class="features__grid">
+            <article class="feature-card">
+              <h3>Marketplace radar</h3>
+              <p>
+                Monitor Depop, Vinted, eBay, and more from one feed with filters
+                tuned to your sourcing criteria.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>AI ranking</h3>
+              <p>
+                Custom scoring blends comps, seller trust, and trend data so you
+                always know which listings deserve attention.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Photo cleanup</h3>
+              <p>
+                Generate clean, retail-ready imagery and titles that make
+                cross-listing effortless.
+              </p>
+            </article>
+            <article class="feature-card">
+              <h3>Profit tracking</h3>
+              <p>
+                Sync your inventory and margins to stay on top of cash flow and
+                upcoming payouts.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="workflow" id="workflow">
+        <div class="container workflow__grid">
+          <div>
+            <p class="eyebrow">How it works</p>
+            <h2>From lead to sale in minutes.</h2>
+            <p>
+              Encore guides resellers through sourcing, optimizing, and selling
+              across every touchpoint.
+            </p>
+          </div>
+          <ol class="workflow__steps">
+            <li>
+              <h3>Set buying lanes</h3>
+              <p>
+                Define sizes, categories, and budget guardrails once. Encore
+                filters every marketplace for matches.
+              </p>
+            </li>
+            <li>
+              <h3>Review AI shortlists</h3>
+              <p>
+                Receive curated drops in Slack, SMS, or email with resale
+                predictions and negotiable sellers highlighted.
+              </p>
+            </li>
+            <li>
+              <h3>List everywhere</h3>
+              <p>
+                Publish optimized descriptions and photos to your storefronts
+                and track performance in real time.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="benefits">
+        <div class="container benefits__grid">
+          <article>
+            <h3>Faster sourcing</h3>
+            <p>Cut research time with automated lead scoring and alerts.</p>
+          </article>
+          <article>
+            <h3>Confident pricing</h3>
+            <p>Leverage comp data to price higher while staying competitive.</p>
+          </article>
+          <article>
+            <h3>Happier buyers</h3>
+            <p>Deliver premium listings with studio-grade visuals in seconds.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="testimonials" id="testimonials">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">Community feedback</p>
+            <h2>Built with top thrifters and power sellers.</h2>
+          </div>
+          <div class="testimonials__grid">
+            <article>
+              <p>
+                “Encore lets our shop lock in heat before the masses. The alert
+                timing is unreal.”
+              </p>
+              <h4>Holly Rivera</h4>
+              <span>Founder, Archive Supply</span>
+            </article>
+            <article>
+              <p>
+                “Moving our sourcing playbook into Encore doubled our sell-through
+                rate without growing the team.”
+              </p>
+              <h4>Jamal Chen</h4>
+              <span>Owner, City Loop Resale</span>
+            </article>
+            <article>
+              <p>
+                “Photo cleanup alone paid for the platform in a week. Listings
+                look polished on every marketplace.”
+              </p>
+              <h4>Rika Tan</h4>
+              <span>Top Rated Seller, Depop</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="faq" id="faq">
+        <div class="container">
+          <div class="section__header">
+            <p class="eyebrow">Questions</p>
+            <h2>Answers before you hop on the waitlist.</h2>
+          </div>
+          <div class="faq__items">
+            <details>
+              <summary>Which marketplaces does Encore monitor?</summary>
+              <p>
+                Today we support Depop, Vinted, Poshmark, eBay, Mercari, and
+                select boutique forums. More regions unlock monthly.
+              </p>
+            </details>
+            <details>
+              <summary>Do I need to share my login credentials?</summary>
+              <p>
+                No. We only use publicly available listing data and never request
+                personal passwords or session tokens.
+              </p>
+            </details>
+            <details>
+              <summary>How do notifications work?</summary>
+              <p>
+                Choose SMS, email, or Slack and set quiet hours. Alerts are rate
+                limited so you only see the deals that matter.
+              </p>
+            </details>
+            <details>
+              <summary>What does pricing look like?</summary>
+              <p>
+                Plans start with a free scouting tier and scale based on the
+                number of sourcing lanes and team seats you activate.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta" id="cta">
+        <div class="container cta__content">
+          <div>
+            <p class="eyebrow">Join the waitlist</p>
+            <h2>Reserve your invite to Encore.</h2>
+            <p>
+              We onboard sellers in cohorts to ensure white-glove support. Share
+              your resale focus and we will reach out with next steps.
+            </p>
+          </div>
+          <a class="btn btn--light" href="mailto:hello@encore.ai">hello@encore.ai</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__grid">
+        <div>
+          <div class="nav__logo">Encore</div>
+          <p>AI-powered sourcing workflows for thrifters and resale teams.</p>
+        </div>
+        <div>
+          <h5>Product</h5>
+          <ul>
+            <li><a href="#features">Overview</a></li>
+            <li><a href="#workflow">Automation</a></li>
+            <li><a href="#faq">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Company</h5>
+          <ul>
+            <li><a href="#testimonials">Customers</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Legal</h5>
+          <ul>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="mailto:hello@encore.ai">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2024 Encore Labs. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

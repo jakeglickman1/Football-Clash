@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "servers": {
+    "local": {
+      "command": "python3",
+      "args": ["-m", "mcp_server"]
+    }
+  }
+}

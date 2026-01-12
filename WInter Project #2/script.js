@@ -129,7 +129,13 @@ function xToYards(x) {
 function createPlayer(label, team, role) {
   const el = document.createElement("div");
   el.className = `player ${team} ${role}`;
-  el.textContent = label;
+  const avatar = document.createElement("div");
+  avatar.className = "player-avatar";
+  const badge = document.createElement("span");
+  badge.className = "player-label";
+  badge.textContent = label;
+  el.appendChild(avatar);
+  el.appendChild(badge);
   playLayer.appendChild(el);
   return {
     label,
@@ -686,16 +692,22 @@ function updateDefenders(dt) {
   state.players.defenders.forEach((defender) => {
     let targetX = defender.x;
     let targetY = defender.y;
-    if (state.ball.carrier) {
-      targetX = state.ball.carrier.x;
-      targetY = state.ball.carrier.y;
-    } else if (defender.assignment) {
-      const assigned = defender.assignment;
+    const assigned = defender.assignment;
+    const qb = state.players.qb;
+    const coverPhase = !state.ball.carrier || state.ball.carrier === qb || state.ball.inFlight;
+    if (assigned && (coverPhase || state.ball.carrier === assigned)) {
       const leadPoint = assigned.routePhase === 0 ? assigned.breakPoint : assigned.goPoint;
       const mix = assigned.routePhase === 0 ? 0.35 : 0.2;
-      const cushion = 14;
+      const cushion = assigned.role === "TE" ? 10 : 14;
       targetX = assigned.x * (1 - mix) + leadPoint.x * mix - cushion;
       targetY = assigned.y * (1 - mix) + leadPoint.y * mix;
+    } else if (state.ball.carrier) {
+      targetX = state.ball.carrier.x;
+      targetY = state.ball.carrier.y;
+    } else if (assigned) {
+      const anchorY = fieldSize.height * defender.lane;
+      targetX = assigned.x - 12;
+      targetY = anchorY;
     }
     moveToward(defender, targetX, targetY, defender.speed, dt);
   });
